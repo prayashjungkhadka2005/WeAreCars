@@ -2,15 +2,28 @@ import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
+import { useNotification } from '../../context/NotificationContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
   const user = JSON.parse(localStorage.getItem('user')) || {};
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
+    try {
+      // Clear all authentication data
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
+      // Show success notification
+      showNotification('Successfully logged out', 'success');
+      
+      // Redirect to login page
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      showNotification('Error during logout. Please try again.');
+    }
   };
 
   return (
@@ -49,9 +62,12 @@ const Navbar = () => {
                     onClick={handleLogout}
                     className={`${
                       active ? 'bg-gray-50 text-blue-900' : 'text-gray-700'
-                    } w-full text-left px-4 py-2 text-sm`}
+                    } w-full text-left px-4 py-2 text-sm flex items-center space-x-2`}
                   >
-                    Sign out
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span>Sign out</span>
                   </button>
                 )}
               </Menu.Item>

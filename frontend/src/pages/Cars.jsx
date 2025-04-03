@@ -768,47 +768,80 @@ const Cars = () => {
 
       {/* Update the cars grid to use filteredAndSortedCars */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredAndSortedCars.map((car) => (
-          <div key={car._id} className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-            <div className="relative h-56 overflow-hidden rounded-t-lg">
-              <img
-                src={car.imageUrl}
-                alt={`${car.brand} ${car.model}`}
-                className="h-full w-full object-contain bg-gray-100"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        {filteredAndSortedCars.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-sm">
+            <div className="text-gray-400 mb-4">
+              <svg className="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
-            <div className="p-6">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-lg font-semibold">
-                    <span className="text-blue-600">{car.brand}</span>{' '}
-                    <span className="text-gray-700">{car.model}</span>
-                  </h3>
-                  <p className="text-sm text-gray-500">{car.type}</p>
-                </div>
-                {renderAvailabilityToggle(car)}
-              </div>
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center text-sm text-gray-600">
-                  <span className="font-medium mr-2">Fuel:</span>
-                  {car.fuelType}
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <span className="font-medium mr-2">Price:</span>
-                  £{car.pricePerDay}/day
-                </div>
-                <div className="flex items-center justify-between text-sm text-gray-600">
-                  <div className="flex items-center">
-                    <span className="font-medium mr-2">Mileage:</span>
-                    {car.mileage} miles
-                  </div>
-                  {renderDeleteButton(car)}
-                </div>
-              </div>
-            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No cars found</h3>
+            <p className="text-gray-500 text-center max-w-sm">
+              {searchTerm 
+                ? `No cars found matching "${searchTerm}". Try adjusting your search terms.`
+                : filters.type || filters.fuelType || filters.priceRange || filters.availability
+                ? "No cars match your current filters. Try adjusting your filter criteria."
+                : "No cars available at the moment."}
+            </p>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setFilters({
+                  type: '',
+                  fuelType: '',
+                  priceRange: '',
+                  availability: ''
+                });
+                setSortBy('brand');
+              }}
+              className="mt-4 px-4 py-2 text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Clear all filters
+            </button>
           </div>
-        ))}
+        ) : (
+          filteredAndSortedCars.map((car) => (
+            <div key={car._id} className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+              <div className="relative h-56 overflow-hidden rounded-t-lg">
+                <img
+                  src={car.imageUrl}
+                  alt={`${car.brand} ${car.model}`}
+                  className="h-full w-full object-contain bg-gray-100"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              </div>
+              <div className="p-6">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      <span className="text-blue-600">{car.brand}</span>{' '}
+                      <span className="text-gray-700">{car.model}</span>
+                    </h3>
+                    <p className="text-sm text-gray-500">{car.type}</p>
+                  </div>
+                  {renderAvailabilityToggle(car)}
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <span className="font-medium mr-2">Fuel:</span>
+                    {car.fuelType}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <span className="font-medium mr-2">Price:</span>
+                    £{car.pricePerDay}/day
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <div className="flex items-center">
+                      <span className="font-medium mr-2">Mileage:</span>
+                      {car.mileage} miles
+                    </div>
+                    {renderDeleteButton(car)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Modal Portal */}

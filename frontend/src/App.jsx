@@ -11,7 +11,7 @@ import './App.css'
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token')
   if (!token) {
-    return <Navigate to="/login" />
+    return <Navigate to="/" />
   }
   return children
 }

@@ -16,18 +16,11 @@ const Cars = () => {
   const [formData, setFormData] = useState({
     brand: '',
     model: '',
-    type: 'City car',
-    fuelType: 'Petrol',
-    transmission: 'Manual',
-    seats: '',
-    luggageCapacity: '',
-    imageUrl: '',
-    description: '',
-    features: [],
-    isAvailable: true,
-    pricePerDay: '0.00',
-    mileage: '',
-    lastMaintenance: new Date().toISOString().split('T')[0]
+    type: '',
+    fuelType: '',
+    pricePerDay: '',
+    image: null,
+    features: []
   });
   // Add new state for filters and search
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,7 +34,8 @@ const Cars = () => {
 
   // Add filtered and sorted cars logic
   const filteredAndSortedCars = useMemo(() => {
-    let result = [...cars];
+    // Ensure cars is always an array
+    let result = Array.isArray(cars) ? [...cars] : [];
 
     // Apply search filter
     if (searchTerm) {
@@ -100,11 +94,14 @@ const Cars = () => {
       const response = await axios.get('http://localhost:5000/api/cars', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setCars(Array.isArray(response.data.data) ? response.data.data : []);
+      
+      // Ensure we always set an array
+      const carsData = response.data?.data || [];
+      setCars(Array.isArray(carsData) ? carsData : []);
     } catch (err) {
       console.error('Error fetching cars:', err);
       showNotification('Failed to fetch cars. Please try again later.');
-      setCars([]);
+      setCars([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -125,20 +122,20 @@ const Cars = () => {
 
   const handleAddFeature = (e) => {
     e.preventDefault();
-    if (newFeature.trim() && !formData.features.includes(newFeature.trim())) {
-      setFormData({
-        ...formData,
-        features: [...formData.features, newFeature.trim()]
-      });
+    if (newFeature.trim() && !formData.features?.includes(newFeature.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        features: [...(prev.features || []), newFeature.trim()]
+      }));
       setNewFeature('');
     }
   };
 
   const handleRemoveFeature = (featureToRemove) => {
-    setFormData({
-      ...formData,
-      features: formData.features.filter(feature => feature !== featureToRemove)
-    });
+    setFormData(prev => ({
+      ...prev,
+      features: (prev.features || []).filter(feature => feature !== featureToRemove)
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -211,18 +208,11 @@ const Cars = () => {
     setFormData({
       brand: '',
       model: '',
-      type: 'City car',
-      fuelType: 'Petrol',
-      transmission: 'Manual',
-      seats: '',
-      luggageCapacity: '',
-      imageUrl: '',
-      description: '',
-      features: [],
-      isAvailable: true,
-      pricePerDay: '0.00',
-      mileage: '',
-      lastMaintenance: new Date().toISOString().split('T')[0]
+      type: '',
+      fuelType: '',
+      pricePerDay: '',
+      image: null,
+      features: []
     });
     setSelectedImage(null);
     setImagePreview(null);
@@ -531,7 +521,7 @@ const Cars = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Features</label>
                     <div className="space-y-4">
                       <div className="flex flex-wrap gap-2 min-h-[2.5rem] p-2 bg-gray-50 rounded-lg border border-gray-200">
-                        {formData.features.length === 0 ? (
+                        {(!formData.features || formData.features.length === 0) ? (
                           <span className="text-gray-400 text-sm">No features added yet</span>
                         ) : (
                           formData.features.map((feature, index) => (
@@ -543,7 +533,7 @@ const Cars = () => {
                               <button
                                 type="button"
                                 onClick={() => handleRemoveFeature(feature)}
-                                className="ml-2 text-blue-600 hover:text-blue-800 focus:outline-none"
+                                className="ml-2 text-blue-600 hover:text-blue-800"
                               >
                                 ×
                               </button>
